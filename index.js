@@ -6,8 +6,40 @@ const {
 const pino = require('pino');
 const { Boom } = require('@hapi/boom');
 
-// كائن لحفظ وتتبع خطوة كل زبون (سجل الجلسات)
+// كائن لتتبع خطوة كل عميل في المحادثة
 const userSessions = {};
+
+// 📝 قائمة الخدمات والأسعار (يمكنك تعديل الأسعار والأسماء من هنا بسهولة)
+const shopServices = {
+    '1': {
+        name: "🎮 ألعاب",
+        items: "• فري فاير (100 جوهرة) 💎 ➔ 1.5$\n• ببجي موبايل (60 شدة) 👑 ➔ 1.2$\n• بطاقة فيفا بوينتس ➔ 5$"
+    },
+    '2': {
+        name: "🎬 مسلسلات وأفلام",
+        items: "• اشتراك نيتفليكس (شاشة واحدة) 🍿 ➔ 4$\n• اشتراك شاهد VIP شهري 🌟 ➔ 3.5$\n• اشتراك IPTV لمدة سنة 📺 ➔ 15$"
+    },
+    '3': {
+        name: "🎁 بطاقات gift",
+        items: "• بطاقة جوجل بلاي 5$ ➔ 6$\n• بطاقة آيتونز 5$ ➔ 6$\n• بطاقة ريزر جولد 100 نقطة ➔ 2$"
+    },
+    '4': {
+        name: "🤖 ذكاء صناعي",
+        items: "• حساب ChatGPT Plus مشترك 🧠 ➔ 7$\n• اشتراك Midjourney لمدة شهر 🎨 ➔ 12$"
+    },
+    '5': {
+        name: "💬 تطبيقات تواصل",
+        items: "• تليجرام بريميوم شهري ✈️ ➔ 4$\n• ديسكورد نيترو قياسي 👾 ➔ 4.5$"
+    }
+};
+
+// 💳 معلومات الدفع الخاصة بمتجرك (عدلها حسب حساباتك الحقيقية)
+const paymentDetails = `💳 *طريقة الدفع المعتمدة:*\n\n` +
+                     `يرجى تحويل مبلغ الطلب عبر أحد الحسابات التالية:\n` +
+                     `• *بنكي (موريتانيا):* 123456789\n` +
+                     `• *السداد الرقمي / جيب:* 222XXXXXX\n` +
+                     `• *بايبال / بطاقة ائتمان:* payment@rimdigital.com\n\n` +
+                     `📸 بعد إتمام التحويل، يرجى إرسال *لقطة شاشة (Screenshot)* واضحة للإيصال هنا لتأكيد طلبك وتجهيزه.`;
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('./session_auth');
@@ -44,106 +76,99 @@ async function startBot() {
             const shouldReconnect = (lastDisconnect.error instanceof Boom) 
                 ? lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut 
                 : true;
-            
-            console.log('[-] انقطع الاتصال:', lastDisconnect.error?.message || 'مشكلة مؤقتة');
-            if (shouldReconnect) {
-                console.log('[+] جاري إعادة تشغيل البوت تلقائياً...');
-                setTimeout(() => startBot(), 5000);
-            }
+            if (shouldReconnect) setTimeout(() => startBot(), 5000);
         } else if (connection === 'open') {
-            console.log('\n==============================================');
-            console.log('🟢 بوت متجر Rim Digital متصل وجاهز لخدمة الزبائن! 🚀');
-            console.log('==============================================\n');
+            console.log('\n🟢 البوت المتسلسل يعمل الآن بنجاح وبأعلى كفاءة! 🚀\n');
         }
     });
 
-    // 🟢 نظام استقبال الرسائل وتسلسل الخدمات الذكي
+    // استقبال الرسائل وتدفق العملية للعميل
     sock.ev.on('messages.upsert', async m => {
         const msg = m.messages[0];
         if (!msg.message || msg.key.fromMe) return;
 
         const from = msg.key.remoteJid;
         const text = (msg.message.conversation || msg.message.extendedTextMessage?.text || '').trim();
-        const isImage = msg.message.imageMessage; // التحقق من وجود صورة
+        const isImage = msg.message.imageMessage;
 
-        // إذا كان المستخدم جديداً تماماً، ننشئ له جلسة جديدة
+        // بدء جلسة جديدة للعميل في حال تواصله لأول مرة
         if (!userSessions[from]) {
-            userSessions[from] = { step: 'WELCOME', service: '', details: '' };
+            userSessions[from] = { step: 'WELCOME', selectedService: '', userDetails: '' };
         }
 
         const session = userSessions[from];
 
         try {
-            // 🛑 الخطوة 1: استقبال أي رسالة وعرض الخدمات
+            // 🛑 1. العميل يرسل أي شيء -> شكر فوري وقائمة الأقسام الـ 5
             if (session.step === 'WELCOME') {
-                const welcomeMessage = `مرحباً بك في متجر Rim Digital 🏪✨\n\nيسعدنا خدمتك تلقائياً! يرجى اختيار الخدمة المطلوبة بإرسال *رقم الخدمة* فقط:\n\n` +
-                                       `1️⃣ شحن ألعاب وحسابات (Free Fire / PUBG) 🎮\n` +
-                                       `2️⃣ خدمات الدفع الرقمي والبطاقات 💳\n` +
-                                       `3️⃣ اشتراكات برامج وترفيه (Netflix / IPTV) 🍿\n` +
-                                       `4️⃣ طلب خاص أو استفسار عام 🛠️\n\n` +
-                                       `_يرجى كتابة الرقم (1 أو 2 أو 3 أو 4) للبدء._`;
+                const welcomeMsg = `أهلاً بك في متجر *Rim Digital*! شكراً لتواصلك معنا 🏪✨\n\n` +
+                                   `يرجى اختيار القسم الذي تريده بإرسال *رقم القسم* فقط:\n\n` +
+                                   `1️⃣ ألعاب 🎮\n` +
+                                   `2️⃣ مسلسلات وأفلام 🎬\n` +
+                                   `3️⃣ بطاقات gift 🎁\n` +
+                                   `4️⃣ ذكاء صناعي 🤖\n` +
+                                   `5️⃣ تطبيقات تواصل 💬\n\n` +
+                                   `_اكتب الرقم (1 أو 2 أو 3 أو 4 أو 5) وسأقوم بعرض التفاصيل فوراً._`;
                 
-                await sock.sendMessage(from, { text: welcomeMessage });
-                session.step = 'AWAITING_SERVICE_SELECTION';
+                await sock.sendMessage(from, { text: welcomeMsg });
+                session.step = 'AWAITING_CATEGORY';
                 return;
             }
 
-            // 🛑 الخطوة 2: معالجة اختيار الخدمة وطلب التفاصيل
-            if (session.step === 'AWAITING_SERVICE_SELECTION') {
-                let serviceName = '';
-                if (text === '1') serviceName = 'شحن ألعاب وحسابات 🎮';
-                else if (text === '2') serviceName = 'خدمات الدفع الرقمي والبطاقات 💳';
-                else if (text === '3') serviceName = 'اشتراكات برامج وترفيه 🍿';
-                else if (text === '4') serviceName = 'طلب خاص أو استفسار 🛠️';
-
-                if (serviceName !== '') {
-                    session.service = serviceName;
+            // 🛑 2. العميل اختار القسم -> عرض الخدمات والأسعار وطلب البيانات
+            if (session.step === 'AWAITING_CATEGORY') {
+                if (shopServices[text]) {
+                    const selected = shopServices[text];
+                    session.selectedService = selected.name;
                     session.step = 'AWAITING_DETAILS';
+
+                    const serviceMsg = `📂 قسم: *[ ${selected.name} ]*\n\n` +
+                                       `📋 *إليك الخدمات المتوفرة وأسعارها الحالية:*\n` +
+                                       `${selected.items}\n\n` +
+                                       `✍️ *الخطوة التالية:* يرجى كتابة اسم الخدمة المطلوبة وتفاصيل حسابك في رسالة واحدة (مثال: شحن فري فاير - ID: 1234567).`;
                     
-                    const detailsPrompt = `رائع! لقد اخترت خدمة: *[ ${serviceName} ]* ✅\n\n` +
-                                          `الآن، يرجى كتابة تفاصيل طلبك بدقة في رسالة واحدة (مثل: رقم الأيدي، نوع الاشتراك، أو الإيميل المراد تفعيله).`;
-                    await sock.sendMessage(from, { text: detailsPrompt });
+                    await sock.sendMessage(from, { text: serviceMsg });
                 } else {
-                    // في حال أدخل رقماً خاطئاً
-                    await sock.sendMessage(from, { text: '❌ يرجى إرسال رقم صحيح من القائمة (1 أو 2 या 3 أو 4).' });
+                    // رسالة تنبيه إذا أرسل شيئاً غير الأرقام المطلوبة
+                    await sock.sendMessage(from, { text: "⚠️ عذراً، يرجى كتابة رقم القسم الصحيح فقط (من 1 إلى 5)." });
                 }
                 return;
             }
 
-            // 🛑 الخطوة 3: استلام التفاصيل وطلب الصورة (لقطة الشاشة)
-            if (session.step === 'AWAITING_DETAILS') {
-                session.details = text;
-                session.step = 'AWAITING_IMAGE';
+            // 🛑 3. استلام البيانات النصية للطلب -> عرض طريقة الدفع وطلب إرسال الصورة
+            if (session.step === 'AWAITING_DETAILS' && text !== '') {
+                session.userDetails = text;
+                session.step = 'AWAITING_PAYMENT';
 
-                const imagePrompt = `تم تسجيل تفاصيل طلبك بنجاح! 📝\n\n` +
-                                    `يرجى الآن إرسال *صورة (لقطة شاشة Screenshot)* لإثبات عملية الدفع أو تفاصيل حسابك لإتمام العملية. 📸`;
-                await sock.sendMessage(from, { text: imagePrompt });
+                const paymentMsg = `✅ تم تسجيل تفاصيل طلبك بنجاح:\n` +
+                                   `📝 *الطلب:* ${text}\n\n` +
+                                   `${paymentDetails}`;
+
+                await sock.sendMessage(from, { text: paymentMsg });
                 return;
             }
 
-            // 🛑 الخطوة 4: التحقق من إرسال الصورة وإنهاء الطلب مع رسالة الوداع والتوقيت
-            if (session.step === 'AWAITING_IMAGE') {
+            // 🛑 4. استلام صورة التحويل -> رسالة تأكيد الاستلام والوداع (أقل من 24 ساعة)
+            if (session.step === 'AWAITING_PAYMENT') {
                 if (isImage) {
-                    const finalMessage = `🎉 تم استلام طلبك وصورة التأكيد بنجاح!\n\n` +
-                                         `📋 *ملخص طلبك:*\n` +
-                                         `• الخدمة: ${session.service}\n` +
-                                         `• التفاصيل: ${session.details}\n\n` +
-                                         `⚡ نود إعلامك بأن فريق العمل قد استلم الطلب الآن، و**سوف ننجز خدمتك في أقل من 24 ساعة** إن شاء الله. ⏱️✨\n\n` +
-                                         `شكراً لثقتك بمتجر Rim Digital! وداعاً ويومك سعيد. 👋🌸`;
+                    const finalGoodbyeMsg = `🎉 *تم استلام طلبك وإيصال الدفع بنجاح!* 🎉\n\n` +
+                                            `• *القسم:* ${session.selectedService}\n` +
+                                            `• *التفاصيل:* ${session.userDetails}\n\n` +
+                                            `⚡ نود إعلامك بأن فريق العمل قد باشر معالجة طلبك الآن، و**سوف ننجز الخدمة لك في أقل من 24 ساعة** إن شاء الله. ⏱️✨\n\n` +
+                                            `نشكرك على اختيارك لـ *Rim Digital*! نراك قريباً ويومك سعيد. 👋🌸`;
+
+                    await sock.sendMessage(from, { text: finalGoodbyeMsg });
                     
-                    await sock.sendMessage(from, { text: finalMessage });
-                    
-                    // إعادة تعيين الجلسة للبدء من جديد عند مراسلته لاحقاً
+                    // حذف الجلسة ليكون العميل جاهزاً للطلب مرة أخرى في المستقبل
                     delete userSessions[from];
                 } else {
-                    // إذا أرسل نصاً بدلاً من الصورة
-                    await sock.sendMessage(from, { text: '⚠️ من فضلك، أرسل صورة (لقطة شاشة) لكي نتمكن من مراجعة الطلب والمتابعة.' });
+                    await sock.sendMessage(from, { text: "⚠️ يرجى إرسال لقطة الشاشة (الصورة) الخاصة بإيصال التحويل لنتمكن من مراجعة طلبك وإتمامه فوراً." });
                 }
                 return;
             }
 
         } catch (error) {
-            console.error("حدث خطأ أثناء معالجة الرسالة:", error);
+            console.error("حدث خطأ أثناء معالجة رسالة العميل:", error);
         }
     });
 }
