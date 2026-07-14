@@ -12,7 +12,7 @@ const userSessions = {};
 // رقم الإدارة الخاص بك لاستقبال الإشعارات وإيصالات الدفع فوراً
 const adminJid = '22241010750@s.whatsapp.net';
 
-// 🗂️ قاعدة البيانات: مختارة ومختصرة بألفاظ واضحة جداً (بدون تكرار وبدون كلمة سعر)
+// 🗂️ قاعدة البيانات المنظمة (بدون تكرار أسماء الخدمات أو كلمة سعر في الخيارات)
 const packages = {
     games: {
         "1": {
@@ -57,7 +57,7 @@ const packages = {
     },
     social: {
         "1": {
-            title: "انستقرام 📸",
+            title: "متابعين انستقرام 📸",
             rows: [
                 { title: "500 متابع", price: "150 MRU" },
                 { title: "1000 متابع", price: "300 MRU" },
@@ -68,7 +68,7 @@ const packages = {
             ]
         },
         "2": {
-            title: "تيك توك 🎵",
+            title: "متابعين تيك توك 🎵",
             rows: [
                 { title: "1000 متابع", price: "400 MRU" },
                 { title: "2000 متابع", price: "700 MRU" },
@@ -79,7 +79,7 @@ const packages = {
             ]
         },
         "3": {
-            title: "سناب بلس 👻",
+            title: "اشتراك سناب شات بلس 👻",
             rows: [
                 { title: "3 أشهر", price: "310 MRU" },
                 { title: "6 أشهر", price: "650 MRU" },
@@ -89,23 +89,34 @@ const packages = {
     }
 };
 
-// 💳 نص الدفع المختصر والواضح جداً للشارع الموريتاني
-const paymentInfo = `💳 طريقة الدفع:
-حوّل للرقم: *41010750*
-(بنكيلي - سداد - بيم بنك)
+// 💳 نص إرشادات الدفع الموريتاني المتوازن والواضح جداً
+const paymentInfo = `💳 *طريقة الدفع المعتمدة لدى متجر Rim Digital:*
 
-📸 أرسل صورة الإيصال هنا لتأكيد طلبك.`;
+يرجى تحويل قيمة الطلب إلى الرقم الموحد التالي:
+📱 الرقم: *41010750*
 
-// 🏪 القائمة الرئيسية المختصرة
-const mainMenuText = `✨ **Rim Digital** ✨
+وذلك عبر أحد التطبيقات المتاحة لديك:
+• *بنكيلي (Bankily)* 📲
+• *سداد (Sadad)* 📲
+• *بيم بنك (Bim Bank)* 📲
 
-[ 1 ] ألعاب 🎮
-[ 2 ] أفلام ومسلسلات 🎬
-[ 3 ] بطاقات هدايا 🎁
-[ 4 ] ذكاء اصطناعي 🤖
-[ 5 ] زيادة متابعين 💬
+📸 *الخطوة الأخيرة:* بعد إتمام عملية الدفع، يرجى إرسال *لقطة شاشة (Screenshot)* واضحة للإيصال هنا لتأكيد طلبك وتجهيزه فوراً.
 
-✍️ اكتب رقم القسم وأرسل.`;
+🔙 *هل غيّرت رأيك؟* يمكنك في أي وقت كتابة الرمز *#* لإلغاء العملية والعودة للقائمة الرئيسية.`;
+
+// 🏪 القائمة الرئيسية بإرشاد توضيحي واضح لسهولة الاختيار
+const mainMenuText = `🏪 *مرحباً بك في متجر Rim Digital!* ✨
+يسعدنا خدمتك وتسهيل طلبك تلقائياً وبسرعة فائقة.
+
+يرجى الرد بـ *رقم القسم* الذي تريده لبدء طلبك مباشرة 👇:
+
+[ 1 ] 🎮 ألعاب
+[ 2 ] 🎬 أفلام ومسلسلات
+[ 3 ] 🎁 بطاقات هدايا
+[ 4 ] 🤖 ذكاء اصطناعي
+[ 5 ] 💬 تطبيقات التواصل
+
+✍️ *طريقة الاختيار:* فقط اكتب الرقم (مثال: *1*) ثم اضغط إرسال.`;
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('./session_auth');
@@ -139,7 +150,7 @@ async function startBot() {
                 : true;
             if (shouldReconnect) setTimeout(() => startBot(), 5000);
         } else if (connection === 'open') {
-            console.log('\n🟢 البوت الاحترافي المختصر يعمل الآن بنجاح! 🚀\n');
+            console.log('\n🟢 البوت المعدل مع الإرشادات المناسبة يعمل بنجاح! 🚀\n');
         }
     });
 
@@ -178,23 +189,61 @@ async function startBot() {
                 if (text === '1') {
                     session.parentCategory = 'games';
                     session.step = 'AWAITING_SUBCATEGORY';
-                    await sock.sendMessage(from, { text: `🎮 اختر اللعبة:\n\n[ 1 ] ببجي 👑\n[ 2 ] فري فاير 💎\n\n[ 0 ] رجوع للبداية ↩️` });
+                    await sock.sendMessage(from, { text: `🎮 *يرجى اختيار اللعبة التي ترغب بشحنها:*
+
+[ 1 ] ببجي موبايل 👑
+[ 2 ] فري فاير 💎
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب رقم اللعبة (مثلاً: *1*) ثم أرسل.` });
                 } else if (text === '2') {
                     session.parentCategory = 'media';
                     session.step = 'AWAITING_SUBCATEGORY';
-                    await sock.sendMessage(from, { text: `🎬 اختر الخدمة:\n\n[ 1 ] نيتفليكس 🍿\n[ 2 ] شاهد 🎬\n[ 3 ] أمازون 🎥\n[ 4 ] تود ⚽\n\n[ 0 ] رجوع للبداية ↩️` });
+                    await sock.sendMessage(from, { text: `🎬 *يرجى تحديد الخدمة الترفيهية التي تفضلها:*
+
+[ 1 ] نيتفليكس 🍿
+[ 2 ] شاهد 🎬
+[ 3 ] أمازون برايم 🎥
+[ 4 ] تود ⚽
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب رقم الخدمة ثم أرسل.` });
                 } else if (text === '3') {
                     session.parentCategory = 'gift';
                     session.step = 'AWAITING_SUBCATEGORY';
-                    await sock.sendMessage(from, { text: `🎁 اختر نوع البطاقة:\n\n[ 1 ] آيتونز 🎁\n[ 2 ] جوجل بلاي 🎁\n\n[ 0 ] رجوع للبداية ↩️` });
+                    await sock.sendMessage(from, { text: `🎁 *يرجى اختيار نوع بطاقة الهدايا الرقمية:*
+
+[ 1 ] بطاقات iTunes الهدايا 🍏
+[ 2 ] بطاقات Google Play 🤖
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب الرقم ثم أرسل.` });
                 } else if (text === '4') {
                     session.parentCategory = 'ai';
                     session.step = 'AWAITING_SUBCATEGORY';
-                    await sock.sendMessage(from, { text: `🤖 اختر الأداة:\n\n[ 1 ] شات جي بي تي 🧠\n[ 2 ] جيميني 🤖\n\n[ 0 ] رجوع للبداية ↩️` });
+                    await sock.sendMessage(from, { text: `🤖 *يرجى اختيار أداة الذكاء الاصطناعي:*
+
+[ 1 ] اشتراكات ChatGPT 🧠
+[ 2 ] اشتراكات Gemini AI 🤖
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب الرقم ثم أرسل.` });
                 } else if (text === '5') {
                     session.parentCategory = 'social';
                     session.step = 'AWAITING_SUBCATEGORY';
-                    await sock.sendMessage(from, { text: `💬 اختر المنصة:\n\n[ 1 ] انستقرام 📸\n[ 2 ] تيك توك 🎵\n[ 3 ] سناب بلس 👻\n\n[ 0 ] رجوع للبداية ↩️` });
+                    await sock.sendMessage(from, { text: `💬 *يرجى تحديد الخدمة التي ترغب بها:*
+
+[ 1 ] متابعين انستقرام 📸
+[ 2 ] متابعين تيك توك 🎵
+[ 3 ] اشتراك سناب شات بلس 👻
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب الرقم ثم أرسل.` });
                 } else {
                     await sock.sendMessage(from, { text: mainMenuText });
                 }
@@ -217,15 +266,15 @@ async function startBot() {
                     session.subCategoryTitle = sub.title;
                     session.step = 'AWAITING_PACKAGE';
 
-                    let packMsg = `📦 باقات [ ${sub.title} ] المتاحة:\n\n`;
+                    let packMsg = `📦 *باقات [ ${sub.title} ] المتاحة:*\n\n`;
                     sub.rows.forEach((row, index) => {
                         packMsg += `[ ${index + 1} ] ${row.title} -> ${row.price}\n`;
                     });
-                    packMsg += `\n[ 0 ] رجوع للخلف ↩️\n[ # ] القائمة الرئيسية 🏠\n\n✍️ اكتب رقم الباقة المناسبة:`;
+                    packMsg += `\n[ 0 ] العودة للقائمة السابقة ↩️\n[ # ] العودة للقائمة الرئيسية 🏠\n\n✍️ *الرجاء كتابة رقم الباقة المناسبة لك وإرساله:*`;
 
                     await sock.sendMessage(from, { text: packMsg });
                 } else {
-                    await sock.sendMessage(from, { text: "⚠️ رقم غير صحيح، اختر من القائمة." });
+                    await sock.sendMessage(from, { text: "⚠️ اختيار غير صحيح، يرجى كتابة أحد الأرقام المتاحة في القائمة أعلاه." });
                 }
                 return;
             }
@@ -234,7 +283,6 @@ async function startBot() {
             if (session.step === 'AWAITING_PACKAGE') {
                 if (text === '0') {
                     session.step = 'WELCOME';
-                    // محاكاة سريعة للرجوع للقسم السابق المناسب
                     let simulated = '1';
                     if (session.parentCategory === 'media') simulated = '2';
                     else if (session.parentCategory === 'gift') simulated = '3';
@@ -242,11 +290,49 @@ async function startBot() {
                     else if (session.parentCategory === 'social') simulated = '5';
                     
                     session.step = 'AWAITING_CATEGORY';
-                    if (simulated === '1') await sock.sendMessage(from, { text: `🎮 اختر اللعبة:\n\n[ 1 ] ببجي 👑\n[ 2 ] فري فاير 💎\n\n[ 0 ] رجوع للبداية ↩️` });
-                    if (simulated === '2') await sock.sendMessage(from, { text: `🎬 اختر الخدمة:\n\n[ 1 ] نيتفليكس 🍿\n[ 2 ] شاهد 🎬\n[ 3 ] أمازون 🎥\n[ 4 ] تود ⚽\n\n[ 0 ] رجوع للبداية ↩️` });
-                    if (simulated === '3') await sock.sendMessage(from, { text: `🎁 اختر نوع البطاقة:\n\n[ 1 ] آيتونز 🎁\n[ 2 ] جوجل بلاي 🎁\n\n[ 0 ] رجوع للبداية ↩️` });
-                    if (simulated === '4') await sock.sendMessage(from, { text: `🤖 اختر الأداة:\n\n[ 1 ] شات جي بي تي 🧠\n[ 2 ] جيميني 🤖\n\n[ 0 ] رجوع للبداية ↩️` });
-                    if (simulated === '5') await sock.sendMessage(from, { text: `💬 اختر المنصة:\n\n[ 1 ] انستقرام 📸\n[ 2 ] تيك توك 🎵\n[ 3 ] سناب بلس 👻\n\n[ 0 ] رجوع للبداية ↩️` });
+                    if (simulated === '1') await sock.sendMessage(from, { text: `🎮 *يرجى اختيار اللعبة التي ترغب بشحنها:*
+
+[ 1 ] ببجي موبايل 👑
+[ 2 ] فري فاير 💎
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب رقم اللعبة (مثلاً: *1*) ثم أرسل.` });
+                    if (simulated === '2') await sock.sendMessage(from, { text: `🎬 *يرجى تحديد الخدمة الترفيهية التي تفضلها:*
+
+[ 1 ] نيتفليكس 🍿
+[ 2 ] شاهد 🎬
+[ 3 ] أمازون برايم 🎥
+[ 4 ] تود ⚽
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب رقم الخدمة ثم أرسل.` });
+                    if (simulated === '3') await sock.sendMessage(from, { text: `🎁 *يرجى اختيار نوع بطاقة الهدايا الرقمية:*
+
+[ 1 ] بطاقات iTunes الهدايا 🍏
+[ 2 ] بطاقات Google Play 🤖
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب الرقم ثم أرسل.` });
+                    if (simulated === '4') await sock.sendMessage(from, { text: `🤖 *يرجى اختيار أداة الذكاء الاصطناعي:*
+
+[ 1 ] اشتراكات ChatGPT 🧠
+[ 2 ] اشتراكات Gemini AI 🤖
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب الرقم ثم أرسل.` });
+                    if (simulated === '5') await sock.sendMessage(from, { text: `💬 *يرجى تحديد الخدمة التي ترغب بها:*
+
+[ 1 ] متابعين انستقرام 📸
+[ 2 ] متابعين تيك توك 🎵
+[ 3 ] اشتراك سناب شات بلس 👻
+
+[ 0 ] العودة للقائمة الرئيسية ↩️
+
+✍️ اكتب الرقم ثم أرسل.` });
                     session.step = 'AWAITING_SUBCATEGORY';
                     return;
                 }
@@ -264,24 +350,24 @@ async function startBot() {
 
                     if (cat === 'games') {
                         session.step = 'AWAITING_USER_INPUT';
-                        await sock.sendMessage(from, { text: `✍️ اخترت: ${selectedPack.title}\n\nأرسل الآن *آيدي (ID) اللاعب* بدقة:` });
+                        await sock.sendMessage(from, { text: `✍️ *لقد اخترت شحن [ ${selectedPack.title} ]*\n\nيرجى كتابة *ID اللاعب (الآيدي الخاص بك باللعبة)* بدقة الآن وإرساله في رسالة واحدة.` });
                     } else if (cat === 'social') {
                         session.step = 'AWAITING_USER_INPUT';
-                        await sock.sendMessage(from, { text: `✍️ اخترت: ${selectedPack.title}\n\nأرسل الآن *اسم المستخدم (Username)* للحساب:` });
+                        await sock.sendMessage(from, { text: `✍️ *لقد اخترت خدمة [ ${selectedPack.title} ]*\n\nيرجى كتابة *اسم مستخدم الحساب (Username)* الخاص بك بدقة الآن (بدون كلمة مرور) لتنفيذ الخدمة عليه.` });
                     } else {
-                        session.userInput = "لا يتطلب بيانات";
+                        session.userInput = "لا يتطلب بيانات إضافية";
                         session.step = 'AWAITING_PAYMENT_IMAGE';
 
-                        const summaryText = `📋 **تفاصيل طلبك:**\n` +
-                                            `• رقم الطلب: *${session.orderId}*\n` +
-                                            `• الخدمة: ${session.subCategoryTitle}\n` +
-                                            `• الباقة: ${session.packageSelected}\n\n` +
+                        const summaryText = `📋 *ملخص تفاصيل طلبك:*\n` +
+                                            `• *رقم الطلب:* ${session.orderId}\n` +
+                                            `• *الخدمة:* ${session.subCategoryTitle}\n` +
+                                            `• *الباقة:* ${session.packageSelected}\n\n` +
                                             `${paymentInfo}`;
 
                         await sock.sendMessage(from, { text: summaryText });
                     }
                 } else {
-                    await sock.sendMessage(from, { text: "⚠️ اختيار غير صحيح." });
+                    await sock.sendMessage(from, { text: "⚠️ رقم باقة غير صحيح، يرجى كتابة أحد الأرقام المعروضة في القائمة." });
                 }
                 return;
             }
@@ -291,7 +377,7 @@ async function startBot() {
                 session.userInput = text;
                 session.step = 'AWAITING_CONFIRMATION';
 
-                const confirmPrompt = `🔍 **تأكيد البيانات:**\n\nالتي كتبتها: *${text}*\n\n[ 1 ] صحيحة ومتأكد ✅\n[ 2 ] تعديل وكتابة من جديد ✍️`;
+                const confirmPrompt = `🔍 *يرجى التأكد من البيانات التي أدخلتها لضمان دقة التنفيذ:*\n\n👤 البيانات التي كتبتَها: *${text}*\n\nيرجى الرد برقم الاختيار المناسب 👇:\n[ 1 ] تأكيد وصحيحة ✅\n[ 2 ] التعديل (إعادة الكتابة) ✍️`;
                 await sock.sendMessage(from, { text: confirmPrompt });
                 return;
             }
@@ -301,30 +387,38 @@ async function startBot() {
                 if (text === '1') {
                     session.step = 'AWAITING_PAYMENT_IMAGE';
 
-                    const summaryText = `📋 **تفاصيل طلبك المؤكد:**\n` +
-                                        `• رقم الطلب: *${session.orderId}*\n` +
-                                        `• الخدمة: ${session.subCategoryTitle}\n` +
-                                        `• الباقة: ${session.packageSelected}\n` +
-                                        `• البيانات: ${session.userInput}\n\n` +
+                    const summaryText = `📋 *ملخص تفاصيل طلبك المؤكد:*\n` +
+                                        `• *رقم الطلب:* ${session.orderId}\n` +
+                                        `• *الخدمة:* ${session.subCategoryTitle}\n` +
+                                        `• *الباقة:* ${session.packageSelected}\n` +
+                                        `• *البيانات:* ${session.userInput}\n\n` +
                                         `${paymentInfo}`;
 
                     await sock.sendMessage(from, { text: summaryText });
                 } else if (text === '2') {
                     session.step = 'AWAITING_USER_INPUT';
-                    await sock.sendMessage(from, { text: "✍️ أرسل البيانات الصحيحة الآن:" });
+                    await sock.sendMessage(from, { text: "✍️ حسناً، يرجى كتابة البيانات الصحيحة بدقة الآن وإرسالها:" });
                 } else {
-                    await sock.sendMessage(from, { text: "⚠️ اكتب (1) للتأكيد أو (2) للتعديل." });
+                    await sock.sendMessage(from, { text: "⚠️ خيار غير صحيح. يرجى الرد بكتابة الرقم (1) للتأكيد أو الرقم (2) للتعديل." });
                 }
                 return;
             }
 
             // 🛑 الخطوة 6: استقبال إيصال الدفع وتنبيه الإدارة فوراً
             if (session.step === 'AWAITING_PAYMENT_IMAGE') {
+                if (text === '#') {
+                    delete userSessions[from];
+                    await sock.sendMessage(from, { text: "🔄 تم إلغاء طلبك السابق بنجاح وجاري إعادتك..." });
+                    await sock.sendMessage(from, { text: mainMenuText });
+                    userSessions[from] = { step: 'AWAITING_CATEGORY', parentCategory: '', subCategoryKey: '', subCategoryTitle: '', packageSelected: '', userInput: '', orderId: '' };
+                    return;
+                }
+
                 if (isImage) {
                     // 1. إشعار الزبون بنجاح العملية
-                    const finalGoodbyeMsg = `🎉 **تم استلام طلبك رقم [ ${session.orderId} ] بنجاح!**\n\n` +
-                                            `⏱️ سيتم تنفيذ وتجهيز طلبك في أقل من 24 ساعة.\n\n` +
-                                            `شكراً لثقتك بمتجرنا! 👋✨`;
+                    const finalGoodbyeMsg = `🎉 *تم استلام طلبك رقم [ ${session.orderId} ] وصورة الإيصال بنجاح!* 🎉\n\n` +
+                                            `⚡ فريق عمل *Rim Digital* قد استلم التفاصيل وبدأ العمل على تنفيذ طلبك فوراً، و**سوف ننجز الخدمة لك في أقل من 24 ساعة** إن شاء الله. ⏱️✨\n\n` +
+                                            `نشكرك جزيل الشكر على ثقتك بنا وطاب يومك بكل خير وسعادة! 👋🌸`;
                     await sock.sendMessage(from, { text: finalGoodbyeMsg });
 
                     // 2. إرسال إشعار فوري ومفصل إلى رقمك الخاص (الإدارة)
@@ -345,7 +439,7 @@ async function startBot() {
                     // تصفير الجلسة للزبون
                     delete userSessions[from];
                 } else {
-                    await sock.sendMessage(from, { text: "⚠️ يرجى إرسال صورة إيصال التحويل (بنكيلي/سداد/بيم بنك) لتأكيد طلبك.\n\n🔙 أو اكتب *#* للغاء والعودة للبداية." });
+                    await sock.sendMessage(from, { text: "⚠️ يرجى إرسال لقطة الشاشة (الصورة) الخاصة بإيصال تحويل بنكيلي، سداد، أو بيم بنك لتأكيد وتجهيز طلبك.\n\n🔙 أو اكتب *#* للعودة إلى أول رسالة (القائمة الرئيسية) في حال غيّرت رأيك." });
                 }
                 return;
             }
