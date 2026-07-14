@@ -7,9 +7,10 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.6.0",
-    "pino": "^8.19.0",
-    "link-preview-js": "^3.0.0"
+    "@whiskeysockets/baileys": "latest",
+    "pino": "latest",
+    "link-preview-js": "latest",
+    "@hapi/boom": "latest"
   },
   "engines": {
     "node": "20.x"
