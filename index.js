@@ -9,7 +9,7 @@ const { Boom } = require('@hapi/boom');
 // كائن لحفظ وتتبع حالة العميل خطوة بخطوة
 const userSessions = {};
 
-// 🗂️ قاعدة بيانات الأقسام الفرعية والأسعار المعدلة والمنظمة بالكامل
+// 🗂️ قاعدة بيانات الأقسام الفرعية والأسعار المعدلة والمنظمة بالكامل (تنظيف تام من الأسماء المكررة وكلمة سعر)
 const packages = {
     games: {
         "1": {
@@ -42,33 +42,33 @@ const packages = {
         "1": {
             title: "Netflix 🍿",
             rows: [
-                { title: "Netflix - شهر واحد", price: "200 MRU" },
-                { title: "Netflix - شهرين", price: "350 MRU" },
-                { title: "Netflix - ثلاثة أشهر", price: "550 MRU" }
+                { title: "شهر واحد", price: "200 MRU" },
+                { title: "شهرين", price: "350 MRU" },
+                { title: "ثلاثة أشهر", price: "550 MRU" }
             ]
         },
         "2": {
-            title: "Shahed VIP 🎬",
+            title: "Shahed 🎬",
             rows: [
-                { title: "Shahed - شهر واحد", price: "200 MRU" },
-                { title: "Shahed - شهرين", price: "350 MRU" },
-                { title: "Shahed - ثلاثة أشهر", price: "550 MRU" }
+                { title: "شهر واحد", price: "200 MRU" },
+                { title: "شهرين", price: "350 MRU" },
+                { title: "ثلاثة أشهر", price: "550 MRU" }
             ]
         },
         "3": {
             title: "Amazon Prime 🎥",
             rows: [
-                { title: "Amazon Prime - شهر واحد", price: "200 MRU" },
-                { title: "Amazon Prime - شهرين", price: "350 MRU" },
-                { title: "Amazon Prime - ثلاثة أشهر", price: "550 MRU" }
+                { title: "شهر واحد", price: "200 MRU" },
+                { title: "شهرين", price: "350 MRU" },
+                { title: "ثلاثة أشهر", price: "550 MRU" }
             ]
         },
         "4": {
             title: "TOD ⚽",
             rows: [
-                { title: "TOD - شهر واحد", price: "250 MRU" },
-                { title: "TOD - شهرين", price: "400 MRU" },
-                { title: "TOD - ثلاثة أشهر", price: "800 MRU" }
+                { title: "شهر واحد", price: "250 MRU" },
+                { title: "شهرين", price: "400 MRU" },
+                { title: "ثلاثة أشهر", price: "800 MRU" }
             ]
         }
     },
@@ -111,31 +111,31 @@ const packages = {
         "1": {
             title: "متابعين انستقرام (Instagram) 📸",
             rows: [
-                { title: "انستقرام 500 متابع", price: "150 MRU" },
-                { title: "انستقرام 1000 متابع", price: "300 MRU" },
-                { title: "انستقرام 2000 متابع", price: "500 MRU" },
-                { title: "انستقرام 5000 متابع", price: "800 MRU" },
-                { title: "انستقرام 7000 متابع", price: "1000 MRU" },
-                { title: "انستقرام 10000 متابع", price: "1500 MRU" }
+                { title: "500 متابع", price: "150 MRU" },
+                { title: "1000 متابع", price: "300 MRU" },
+                { title: "2000 متابع", price: "500 MRU" },
+                { title: "5000 متابع", price: "800 MRU" },
+                { title: "7000 متابع", price: "1000 MRU" },
+                { title: "10000 متابع", price: "1500 MRU" }
             ]
         },
         "2": {
             title: "متابعين تيك توك (TikTok) 🎵",
             rows: [
-                { title: "تيك توك 1000 متابع", price: "400 MRU" },
-                { title: "تيك توك 2000 متابع", price: "700 MRU" },
-                { title: "تيك توك 3000 متابع", price: "10000 MRU" },
-                { title: "تيك توك 5000 متابع", price: "16000 MRU" },
-                { title: "تيك توك 8000 متابع", price: "23000 MRU" },
-                { title: "تيك توك 10000 متابع", price: "29000 MRU" }
+                { title: "1000 متابع", price: "400 MRU" },
+                { title: "2000 متابع", price: "700 MRU" },
+                { title: "3000 متابع", price: "10000 MRU" },
+                { title: "5000 متابع", price: "16000 MRU" },
+                { title: "8000 متابع", price: "23000 MRU" },
+                { title: "10000 متابع", price: "29000 MRU" }
             ]
         },
         "3": {
             title: "اشتراك سناب شات بلس (Snapchat+) 👻",
             rows: [
-                { title: "سناب بلس - 3 أشهر", price: "310 MRU" },
-                { title: "سناب بلس - 6 أشهر", price: "650 MRU" },
-                { title: "سناب بلس - سنة كاملة", price: "1000 MRU" }
+                { title: "3 أشهر", price: "310 MRU" },
+                { title: "6 أشهر", price: "650 MRU" },
+                { title: "سنة كاملة", price: "1000 MRU" }
             ]
         }
     }
@@ -180,7 +180,7 @@ async function startBot() {
 
     if (phoneNumber && !sock.authState.creds.registered) {
         console.log(`\n[+] تم اكتشاف الرقم المضاف في السيرفر: ${phoneNumber}`);
-        console.log("[+] جاري الاتصال الآمن مع سيرفرات واتساب... انتظر 6 ثوانٍ...");
+        console.log("[+] جاري الاتصال الآمن مع سيرفرات واتساب... انتظر 6 ثوانٍ... ");
         
         setTimeout(async () => {
             try {
@@ -205,7 +205,7 @@ async function startBot() {
                 : true;
             if (shouldReconnect) setTimeout(() => startBot(), 5000);
         } else if (connection === 'open') {
-            console.log('\n🟢 البوت يعمل الآن بنجاح مع القوائم والتأكيدات الذكية الجديدة! 🚀\n');
+            console.log('\n🟢 البوت يعمل الآن بنجاح مع القوائم النظيفة والمنسقة بالكامل! 🚀\n');
         }
     });
 
@@ -217,7 +217,6 @@ async function startBot() {
         const text = (msg.message.conversation || msg.message.extendedTextMessage?.text || '').trim();
         const isImage = msg.message.imageMessage;
 
-        // تهيئة الجلسة إذا لم تكن موجودة
         if (!userSessions[from]) {
             userSessions[from] = { step: 'WELCOME', parentCategory: '', subCategoryKey: '', subCategoryTitle: '', packageSelected: '', userInput: '' };
         }
@@ -225,7 +224,7 @@ async function startBot() {
         const session = userSessions[from];
 
         try {
-            // 🛑 الخطوة 1: ترحيب وقائمة نصية مضمونة
+            // 🛑 الخطوة 1: الترحيب والقائمة الرئيسية
             if (session.step === 'WELCOME') {
                 await sock.sendMessage(from, { text: mainMenuText });
                 session.step = 'AWAITING_CATEGORY';
@@ -319,9 +318,10 @@ async function startBot() {
                     session.subCategoryTitle = sub.title;
                     session.step = 'AWAITING_PACKAGE';
 
-                    let packMsg = `📦 *أسعار وباقات [ ${sub.title} ] بالـ (MRU):*\n\n`;
+                    let packMsg = `📦 *باقات [ ${sub.title} ] المتاحة:*\n\n`;
                     sub.rows.forEach((row, index) => {
-                        packMsg += `[ ${index + 1} ] ${row.title} 👈 *السعر: ${row.price}*\n`;
+                        // تظهر الباقة والـ MRU مباشرة ونظيفة من كلمات الحشو والأسماء المكررة
+                        packMsg += `[ ${index + 1} ] ${row.title} -> ${row.price}\n`;
                     });
                     packMsg += `\n[ 0 ] العودة للقائمة السابقة ↩️\n\n✍️ *الرجاء كتابة رقم الباقة المناسبة لك وإرساله:*`;
 
@@ -374,7 +374,7 @@ async function startBot() {
 
                 if (packages[cat] && packages[cat][subKey] && packages[cat][subKey].rows[index]) {
                     const selectedPack = packages[cat][subKey].rows[index];
-                    session.packageSelected = `${selectedPack.title} - (السعر: ${selectedPack.price})`;
+                    session.packageSelected = `${selectedPack.title} -> ${selectedPack.price}`;
 
                     if (cat === 'games') {
                         session.step = 'AWAITING_USER_INPUT';
@@ -385,7 +385,6 @@ async function startBot() {
                         const promptText = `✍️ *لقد اخترت خدمة [ ${selectedPack.title} ]*\n\nيرجى كتابة *اسم مستخدم الحساب (Username)* الخاص بك بدقة الآن (بدون كلمة مرور) لتنفيذ الخدمة عليه.`;
                         await sock.sendMessage(from, { text: promptText });
                     } else {
-                        // للأقسام الأخرى التي لا تتطلب آيدي/يوزر، نقوم بتحويلهم لصفحة الدفع مباشرة
                         session.userInput = "لا يتطلب بيانات إضافية";
                         session.step = 'AWAITING_PAYMENT_IMAGE';
 
@@ -402,7 +401,7 @@ async function startBot() {
                 return;
             }
 
-            // 🛑 الخطوة 5: استلام البيانات (ID أو يوزر) وعرض خيار (تأكيد / تعديل) لمنع الأخطاء
+            // 🛑 الخطوة 5: استلام البيانات والتحقق
             if (session.step === 'AWAITING_USER_INPUT' && text !== '') {
                 session.userInput = text;
                 session.step = 'AWAITING_CONFIRMATION';
@@ -419,10 +418,9 @@ async function startBot() {
                 return;
             }
 
-            // 🛑 الخطوة 5 مكرر: معالجة خيار التأكيد أو التعديل للبيانات
+            // 🛑 الخطوة 5 مكرر: تأكيد أو تعديل البيانات
             if (session.step === 'AWAITING_CONFIRMATION') {
                 if (text === '1') {
-                    // العميل أكد البيانات -> نوجهه فوراً للدفع
                     session.step = 'AWAITING_PAYMENT_IMAGE';
 
                     const summaryText = `📋 *ملخص تفاصيل طلبك المؤكد:*\n` +
@@ -433,7 +431,6 @@ async function startBot() {
 
                     await sock.sendMessage(from, { text: summaryText });
                 } else if (text === '2') {
-                    // العميل يريد تعديل البيانات -> نرجعه لخطوة الإدخال مجدداً
                     session.step = 'AWAITING_USER_INPUT';
                     await sock.sendMessage(from, { text: "✍️ حسناً، يرجى كتابة البيانات الصحيحة بدقة الآن وإرسالها:" });
                 } else {
@@ -442,7 +439,7 @@ async function startBot() {
                 return;
             }
 
-            // 🛑 الخطوة 6: استقبال صورة إيصال الدفع وتأكيد الطلب
+            // 🛑 الخطوة 6: استقبال الصورة وتأكيد الطلب
             if (session.step === 'AWAITING_PAYMENT_IMAGE') {
                 if (isImage) {
                     let detailsSummary = `• *الخدمة:* ${session.subCategoryTitle}\n` +
@@ -459,7 +456,7 @@ async function startBot() {
 
                     await sock.sendMessage(from, { text: finalGoodbyeMsg });
                     
-                    // حذف الجلسة لإتاحة الطلب من جديد
+                    // تصفير الجلسة لبدء عملية جديدة عند الحاجة
                     delete userSessions[from];
                 } else {
                     await sock.sendMessage(from, { text: "⚠️ يرجى إرسال لقطة الشاشة (الصورة) الخاصة بإيصال تحويل بنكيلي، سداد، أو بيم بنك لتأكيد وتجهيز طلبك." });
